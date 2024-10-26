@@ -1,0 +1,6 @@
+@ClinicManagementSystem_UWU_HostAddress = http://localhost:5194
+
+GET {{ClinicManagementSystem_UWU_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
