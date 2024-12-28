@@ -17,7 +17,8 @@ namespace ClinicManagementSystem_UWU.Models.Data
                 new Role { RoleName = "Admin", Description = "Full access to the system" },
                 new Role { RoleName = "Doctor", Description = "Access to patient records and appointment management" },
                 new Role { RoleName = "Nurse", Description = "Access to patient care-related information" },
-                new Role { RoleName = "Receptionist", Description = "Access to scheduling and basic patient info" }
+                new Role { RoleName = "Receptionist", Description = "Access to scheduling and basic patient info" },
+                new Role { RoleName="Patient",Description="Access to See Clinic schedules"}
             );
 
             context.SaveChanges();

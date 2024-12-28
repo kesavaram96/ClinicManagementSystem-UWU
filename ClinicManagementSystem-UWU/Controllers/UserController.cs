@@ -1,6 +1,7 @@
 ﻿using ClinicManagementSystem_UWU.Interfaces;
 using ClinicManagementSystem_UWU.Models.Auth;
 using ClinicManagementSystem_UWU.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,12 +31,25 @@ namespace ClinicManagementSystem_UWU.Controllers
             await _userService.AssignRoleAsync(userId, roleId);
             return Ok("Role assigned successfully");
         }
-
+        [Authorize]
         [HttpGet("{userId}/roles")]
         public async Task<IActionResult> GetUserRoles(int userId)
         {
             var roles = await _userService.GetUserRolesAsync(userId);
             return Ok(roles);
+        }
+
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        {
+            var token = await _userService.LoginAsync(loginDto);
+            if (token == null)
+            {
+                return Unauthorized(new { Message = "Invalid credentials", Status=false});
+            }
+
+            return Ok(new {Message="Success", Token = token,Status=true });
         }
     }
 }

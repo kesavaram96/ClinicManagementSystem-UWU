@@ -8,11 +8,19 @@ namespace ClinicManagementSystem_UWU.Models.Data
     {
             public ClinicDbContext(DbContextOptions<ClinicDbContext> options) : base(options) { }
 
+        //Auth tables
             public DbSet<User> Users { get; set; }
             public DbSet<Role> Roles { get; set; }
             public DbSet<UserRole> UserRoles { get; set; }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //Information Tables
+        public DbSet<DoctorDetails> DoctorDetails { get; set; }
+        public DbSet<PatientDetails> PatientDetails { get; set; }
+        public DbSet<AdminDetails> AdminDetails { get; set; }
+        public DbSet<NurseDetails> NurseDetails { get; set; }
+        public DbSet<ReceptionistDetails> ReceptionistDetails { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 base.OnModelCreating(modelBuilder);
 

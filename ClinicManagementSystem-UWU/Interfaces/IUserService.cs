@@ -9,6 +9,7 @@ namespace ClinicManagementSystem_UWU.Interfaces
         //Task AddUserAsync(User user);
         Task AssignRoleAsync(int userId, int roleId);
         Task<List<Role>> GetUserRolesAsync(int userId);
+        Task<string> LoginAsync(LoginDto loginDto);
     }
 
 }
