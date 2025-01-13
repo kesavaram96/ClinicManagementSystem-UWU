@@ -51,5 +51,44 @@ namespace ClinicManagementSystem_UWU.Controllers
 
             return Ok(new {Message="Success", Token = token,Status=true });
         }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto createUserDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _userService.CreateUserAsync(createUserDto);
+                if (result)
+                {
+                    return Ok(new { Message = "User created successfully." });
+                }
+                return BadRequest(new { Message = "Failed to create user." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("Users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _userService.GetUsersList();
+
+            var userDtos = users.Select(u => new UserListDTO
+            {
+                UserId = u.UserId,
+                Username = u.Username,
+                Email = u.Email,
+                RoleNames = u.UserRoles.Select(ur => ur.Role.RoleName).ToList() // Include role names only
+            }).ToList();
+
+            return Ok(userDtos);
+        }
     }
 }

@@ -10,6 +10,8 @@ namespace ClinicManagementSystem_UWU.Interfaces
         Task AssignRoleAsync(int userId, int roleId);
         Task<List<Role>> GetUserRolesAsync(int userId);
         Task<string> LoginAsync(LoginDto loginDto);
+        Task<bool> CreateUserAsync(CreateUserDto createUserDto);
+        Task<List<User>> GetUsersList();
     }
 
 }
