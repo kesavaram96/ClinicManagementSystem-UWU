@@ -1,7 +1,10 @@
-﻿namespace ClinicManagementSystem_UWU.Models.Auth
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ClinicManagementSystem_UWU.Models.Auth
 {
     public class Role
     {
+        [Key]
         public int RoleId { get; set; }
         public string RoleName { get; set; }
         public string Description { get; set; }

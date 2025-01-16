@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClinicManagementSystem_UWU.Models.Auth
 {
     public class UserRole
     {
+        [Key]
         public int UserRoleId { get; set; }
         [ForeignKey("User")]
         public int UserId { get; set; }

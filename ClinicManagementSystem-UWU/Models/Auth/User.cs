@@ -5,6 +5,7 @@ namespace ClinicManagementSystem_UWU.Models.Auth
 {
     public class User
     {
+        [Key]
         public int UserId { get; set; }
         public string Username { get; set; }
         public string PasswordHash { get; set; }

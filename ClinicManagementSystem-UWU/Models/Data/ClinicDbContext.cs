@@ -10,8 +10,8 @@ namespace ClinicManagementSystem_UWU.Models.Data
 
         //Auth tables
             public DbSet<User> Users { get; set; }
-            public DbSet<Role> Roles { get; set; }
-            public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
 
         //Information Tables
         public DbSet<DoctorDetails> DoctorDetails { get; set; }
@@ -19,26 +19,60 @@ namespace ClinicManagementSystem_UWU.Models.Data
         public DbSet<AdminDetails> AdminDetails { get; set; }
         public DbSet<NurseDetails> NurseDetails { get; set; }
         public DbSet<ReceptionistDetails> ReceptionistDetails { get; set; }
+        public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<Clinic> Clinics { get; set; }
+        public DbSet<Room> Rooms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder);
 
-                // Configure many-to-many relationship
-                modelBuilder.Entity<UserRole>()
-                    .HasKey(ur => ur.UserRoleId);
+            // Configure many-to-many relationship
+            modelBuilder.Entity<UserRole>()
+                .HasKey(ur => ur.UserRoleId);
 
-                modelBuilder.Entity<UserRole>()
-                    .HasOne(ur => ur.User)
-                    .WithMany(u => u.UserRoles)
-                    .HasForeignKey(ur => ur.UserId);
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId);
 
-                modelBuilder.Entity<UserRole>()
-                    .HasOne(ur => ur.Role)
-                    .WithMany(r => r.UserRoles)
-                    .HasForeignKey(ur => ur.RoleId);
-            }
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId);
+
+   
+            // Appointment -> Patient (Restrict to prevent cascade path conflicts)
+            modelBuilder.Entity<Appointment>()
+                .HasOne(a => a.Patient)
+                .WithMany()
+                .HasForeignKey(a => a.PatientId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false); // Prevents cascade delete
+
+            // Appointment -> Doctor (Restrict to prevent cascade path conflicts)
+            modelBuilder.Entity<Appointment>()
+                .HasOne(a => a.Doctor)
+                .WithMany()
+                .HasForeignKey(a => a.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
+            // Appointment -> Room (Cascade delete allowed)
+            modelBuilder.Entity<Appointment>()
+                .HasOne(a => a.Room)
+                .WithMany()
+                .HasForeignKey(a => a.RoomId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false); // Only Room can be cascaded
         }
 
-    
+    }
+
+
 }
+
+
+
+    
+

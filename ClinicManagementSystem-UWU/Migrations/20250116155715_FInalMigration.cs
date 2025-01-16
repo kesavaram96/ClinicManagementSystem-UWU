@@ -5,7 +5,7 @@
 namespace ClinicManagementSystem_UWU.Migrations
 {
     /// <inheritdoc />
-    public partial class DataSeeding2 : Migration
+    public partial class FInalMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
