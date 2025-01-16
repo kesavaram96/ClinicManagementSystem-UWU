@@ -1,8 +1,10 @@
 ﻿using ClinicManagementSystem_UWU.Models.Auth;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class NurseDetails
 {
     public int NurseDetailsId { get; set; }
+    [ForeignKey("User")]
     public int UserId { get; set; }
     public User User { get; set; }
     public string Shift { get; set; }
