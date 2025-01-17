@@ -119,6 +119,9 @@ namespace ClinicManagementSystem_UWU.Services
                 Email = createUserDto.Email,
                 IsActive = true,
                 PasswordHash = _passwordHasher.HashPassword(null, createUserDto.Password),
+                FullName= createUserDto.FullName,
+                PhoneNumber=createUserDto.PhoneNumber,
+                Address=createUserDto.Address
             };
 
             _context.Users.Add(user);

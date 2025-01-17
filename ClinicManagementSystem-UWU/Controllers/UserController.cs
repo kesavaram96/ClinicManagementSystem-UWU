@@ -80,6 +80,7 @@ namespace ClinicManagementSystem_UWU.Controllers
         {
             var users = await _userService.GetUsersList();
 
+            
             var userDtos = users.Select(u => new UserListDTO
             {
                 UserId = u.UserId,
