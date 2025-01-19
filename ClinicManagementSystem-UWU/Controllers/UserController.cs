@@ -46,10 +46,10 @@ namespace ClinicManagementSystem_UWU.Controllers
             var token = await _userService.LoginAsync(loginDto);
             if (token == null)
             {
-                return Unauthorized(new { Message = "Invalid credentials", Status=false});
+                return Unauthorized(new { Message = "Invalid credentials", Status = false });
             }
 
-            return Ok(new {Message="Success", Token = token,Status=true });
+            return Ok(new { Message = "Success", Token = token, Status = true });
         }
 
         [HttpPost("create")]
@@ -80,7 +80,7 @@ namespace ClinicManagementSystem_UWU.Controllers
         {
             var users = await _userService.GetUsersList();
 
-            
+
             var userDtos = users.Select(u => new UserListDTO
             {
                 UserId = u.UserId,
@@ -90,6 +90,52 @@ namespace ClinicManagementSystem_UWU.Controllers
             }).ToList();
 
             return Ok(userDtos);
+        }
+
+
+        [HttpGet("User")]
+        public async Task<IActionResult> GetUser(int userId)
+        {
+           var user= await _userService.GetUser(userId);
+
+            return Ok(user);
+        }
+
+        [HttpPut("EditUser")]
+        public async Task<IActionResult> EditUser(int userId, [FromBody] EditUserDTO userDto)
+        {
+            try
+            {
+                var result = await _userService.EditUser(userId, userDto);
+                if (result == "User not found.")
+                {
+                    return NotFound(new { message = result });
+                }
+                return Ok(new { message = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while updating the user.", error = ex.Message });
+            }
+        }
+
+        // Delete User API
+        [HttpDelete("DeleteUser")]
+        public async Task<IActionResult> DeleteUser(int userId)
+        {
+            try
+            {
+                var result = await _userService.DeleteUser(userId);
+                if (result == "User not found.")
+                {
+                    return NotFound(new { message = result });
+                }
+                return Ok(new { message = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while deleting the user.", error = ex.Message });
+            }
         }
     }
 }

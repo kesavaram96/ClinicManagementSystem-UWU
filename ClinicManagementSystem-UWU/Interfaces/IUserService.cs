@@ -12,6 +12,10 @@ namespace ClinicManagementSystem_UWU.Interfaces
         Task<string> LoginAsync(LoginDto loginDto);
         Task<bool> CreateUserAsync(CreateUserDto createUserDto);
         Task<List<User>> GetUsersList();
+        Task<UserEditDTO> GetUser(int userId);
+        Task<string> EditUser(int userId, EditUserDTO userDto);
+        Task<string> DeleteUser(int userId);
+
     }
 
 }

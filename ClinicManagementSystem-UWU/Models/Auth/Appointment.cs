@@ -17,9 +17,9 @@ namespace ClinicManagementSystem_UWU.Models.Auth
         public int DoctorId { get; set; }
         public DoctorDetails Doctor { get; set; }
 
-        [ForeignKey("Room")]
-        public int RoomId { get; set; }
-        public Room Room { get; set; }
+        [ForeignKey("Clinic")]
+        public int CliniId { get; set; }
+        public Clinic Clinic { get; set; }
 
         public DateTime AppointmentDate { get; set; }
         public string Status { get; set; } // Scheduled, Completed, Cancelled

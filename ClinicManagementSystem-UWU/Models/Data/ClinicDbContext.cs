@@ -21,8 +21,8 @@ namespace ClinicManagementSystem_UWU.Models.Data
         public DbSet<ReceptionistDetails> ReceptionistDetails { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Clinic> Clinics { get; set; }
-        public DbSet<Room> Rooms { get; set; }
-
+         
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
             base.OnModelCreating(modelBuilder);
@@ -58,13 +58,7 @@ namespace ClinicManagementSystem_UWU.Models.Data
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
 
-            // Appointment -> Room (Cascade delete allowed)
-            modelBuilder.Entity<Appointment>()
-                .HasOne(a => a.Room)
-                .WithMany()
-                .HasForeignKey(a => a.RoomId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false); // Only Room can be cascaded
+            
         }
 
     }

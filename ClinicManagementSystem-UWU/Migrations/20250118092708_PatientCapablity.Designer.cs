@@ -4,6 +4,7 @@ using ClinicManagementSystem_UWU.Models.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClinicManagementSystem_UWU.Migrations
 {
     [DbContext(typeof(ClinicDbContext))]
-    partial class ClinicDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250118092708_PatientCapablity")]
+    partial class PatientCapablity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,9 +62,6 @@ namespace ClinicManagementSystem_UWU.Migrations
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CliniId")
-                        .HasColumnType("int");
-
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
@@ -71,17 +71,25 @@ namespace ClinicManagementSystem_UWU.Migrations
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RoomId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AppointmentId");
 
-                    b.HasIndex("CliniId");
-
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("RoomId1");
 
                     b.ToTable("Appointments");
                 });
@@ -102,7 +110,7 @@ namespace ClinicManagementSystem_UWU.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PatientCapability")
+                    b.Property<int>("PatientCapablity")
                         .HasColumnType("int");
 
                     b.HasKey("ClinicId");
@@ -129,6 +137,28 @@ namespace ClinicManagementSystem_UWU.Migrations
                     b.HasKey("RoleId");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("ClinicManagementSystem_UWU.Models.Auth.Room", b =>
+                {
+                    b.Property<int>("RoomId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoomId"));
+
+                    b.Property<int>("ClinicId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoomNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("RoomId");
+
+                    b.HasIndex("ClinicId");
+
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("ClinicManagementSystem_UWU.Models.Auth.User", b =>
@@ -340,12 +370,6 @@ namespace ClinicManagementSystem_UWU.Migrations
 
             modelBuilder.Entity("ClinicManagementSystem_UWU.Models.Auth.Appointment", b =>
                 {
-                    b.HasOne("ClinicManagementSystem_UWU.Models.Auth.Clinic", "Clinic")
-                        .WithMany()
-                        .HasForeignKey("CliniId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("DoctorDetails", "Doctor")
                         .WithMany()
                         .HasForeignKey("DoctorId")
@@ -356,11 +380,31 @@ namespace ClinicManagementSystem_UWU.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Clinic");
+                    b.HasOne("ClinicManagementSystem_UWU.Models.Auth.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ClinicManagementSystem_UWU.Models.Auth.Room", null)
+                        .WithMany("Appointments")
+                        .HasForeignKey("RoomId1");
 
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("ClinicManagementSystem_UWU.Models.Auth.Room", b =>
+                {
+                    b.HasOne("ClinicManagementSystem_UWU.Models.Auth.Clinic", "Clinic")
+                        .WithMany("Rooms")
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Clinic");
                 });
 
             modelBuilder.Entity("ClinicManagementSystem_UWU.Models.Auth.UserRole", b =>
@@ -426,9 +470,19 @@ namespace ClinicManagementSystem_UWU.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ClinicManagementSystem_UWU.Models.Auth.Clinic", b =>
+                {
+                    b.Navigation("Rooms");
+                });
+
             modelBuilder.Entity("ClinicManagementSystem_UWU.Models.Auth.Role", b =>
                 {
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("ClinicManagementSystem_UWU.Models.Auth.Room", b =>
+                {
+                    b.Navigation("Appointments");
                 });
 
             modelBuilder.Entity("ClinicManagementSystem_UWU.Models.Auth.User", b =>
