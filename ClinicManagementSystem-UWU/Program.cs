@@ -30,8 +30,11 @@ builder.Services.AddDbContext<ClinicDbContext>(options =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IClinicService, ClinicService>();
+builder.Services.AddScoped<IAppointmentRequestService, AppointmentRequestService>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddHttpContextAccessor();
+
 
 // JWT configuration
 var jwtSettings = builder.Configuration.GetSection("Jwt");

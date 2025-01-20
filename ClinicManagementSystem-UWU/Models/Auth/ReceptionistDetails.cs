@@ -9,7 +9,7 @@ public class ReceptionistDetails
     [ForeignKey("User")]
     public int UserId { get; set; }
     public User User { get; set; }
-    public string DeskLocation { get; set; }
-    public string AssignedDoctor { get; set; }
-    public string Shift { get; set; }
+    public string? DeskLocation { get; set; }
+    public string? AssignedDoctor { get; set; }
+    public string? Shift { get; set; }
 }

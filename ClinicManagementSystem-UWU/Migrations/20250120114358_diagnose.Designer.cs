@@ -4,6 +4,7 @@ using ClinicManagementSystem_UWU.Models.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClinicManagementSystem_UWU.Migrations
 {
     [DbContext(typeof(ClinicDbContext))]
-    partial class ClinicDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250120114358_diagnose")]
+    partial class diagnose
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,9 +101,11 @@ namespace ClinicManagementSystem_UWU.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ApproveUser")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ApprovedReason")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CliniId")
@@ -113,9 +118,11 @@ namespace ClinicManagementSystem_UWU.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RequestingReason")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -163,18 +170,21 @@ namespace ClinicManagementSystem_UWU.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Diagnose")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HealthStatus")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HeartRate")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("Weight")
+                    b.Property<decimal>("Weight")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -279,10 +289,11 @@ namespace ClinicManagementSystem_UWU.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorDetailsId"));
 
-                    b.Property<DateTime?>("JoiningDate")
+                    b.Property<DateTime>("JoiningDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Specialization")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
@@ -304,15 +315,18 @@ namespace ClinicManagementSystem_UWU.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NurseDetailsId"));
 
                     b.Property<string>("Shift")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Specialization")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.Property<string>("Ward")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("NurseDetailsId");
@@ -331,24 +345,30 @@ namespace ClinicManagementSystem_UWU.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PatientDetailsId"));
 
                     b.Property<string>("BloodGroup")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ECNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ECRelationship")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EmergencyContactPerson")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("InsuranceNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MedicalHistory")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
@@ -370,12 +390,15 @@ namespace ClinicManagementSystem_UWU.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReceptionistDetailsId"));
 
                     b.Property<string>("AssignedDoctor")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DeskLocation")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Shift")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")

@@ -21,8 +21,10 @@ namespace ClinicManagementSystem_UWU.Models.Data
         public DbSet<ReceptionistDetails> ReceptionistDetails { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Clinic> Clinics { get; set; }
-         
-        
+
+        public DbSet<AppointmentRequest> AppointmentRequest { get; set; }
+        public DbSet<DiagnoseReport> DiagnoseReport { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
             base.OnModelCreating(modelBuilder);

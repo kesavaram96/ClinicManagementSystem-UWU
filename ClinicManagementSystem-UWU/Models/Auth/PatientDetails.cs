@@ -9,13 +9,13 @@ public class PatientDetails
     [ForeignKey("User")]
     public int UserId { get; set; } 
     public User User { get; set; } 
-    public string MedicalHistory { get; set; }
-    public string InsuranceNumber { get; set; }
+    public string? MedicalHistory { get; set; }
+    public string? InsuranceNumber { get; set; }
     public DateTime? DateOfBirth { get; set; }
 
-    public string EmergencyContactPerson { get; set; }
-    public string ECNumber { get; set; }
-    public string ECRelationship { get; set; }
-    public string BloodGroup { get; set; }
+    public string? EmergencyContactPerson { get; set; }
+    public string? ECNumber { get; set; }
+    public string? ECRelationship { get; set; }
+    public string? BloodGroup { get; set; }
 
 }

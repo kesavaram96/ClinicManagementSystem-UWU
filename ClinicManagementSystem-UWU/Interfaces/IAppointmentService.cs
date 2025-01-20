@@ -14,5 +14,7 @@ namespace ClinicManagementSystem_UWU.Interfaces
 
         Task<IEnumerable<DoctorDTO>> GetAllDoctorsAsync();
         Task<DoctorDTO> GetDoctorByIdAsync(int doctorId);
+
+        
     }
 }

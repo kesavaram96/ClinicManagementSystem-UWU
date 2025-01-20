@@ -9,8 +9,8 @@ public class DoctorDetails
     [ForeignKey("User")]
     public int UserId { get; set; } 
     public User User { get; set; } 
-    public string Specialization { get; set; }
-    public DateTime JoiningDate { get; set; }
+    public string? Specialization { get; set; }
+    public DateTime? JoiningDate { get; set; }
 
     
 }

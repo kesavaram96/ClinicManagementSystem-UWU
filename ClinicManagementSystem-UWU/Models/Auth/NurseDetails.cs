@@ -9,7 +9,7 @@ public class NurseDetails
     [ForeignKey("User")]
     public int UserId { get; set; }
     public User User { get; set; }
-    public string Shift { get; set; }
-    public string Specialization { get; set; }
-    public string Ward { get; set; }
+    public string? Shift { get; set; }
+    public string? Specialization { get; set; }
+    public string? Ward { get; set; }
 }
