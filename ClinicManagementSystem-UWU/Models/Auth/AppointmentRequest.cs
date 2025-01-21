@@ -13,6 +13,10 @@ namespace ClinicManagementSystem_UWU.Models.Auth
             public int PatientId { get; set; }
             public PatientDetails Patient { get; set; } // Change to PatientDetails
 
+            [ForeignKey("Doctor")]
+            public int? DoctorId { get; set; }
+            public DoctorDetails? Doctor { get; set; } // Change to Doctor
+
             [ForeignKey("Clinic")]
             public int CliniId { get; set; }
             public Clinic Clinic { get; set; }

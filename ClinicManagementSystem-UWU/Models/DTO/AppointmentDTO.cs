@@ -8,7 +8,7 @@ namespace ClinicManagementSystem_UWU.Models.DTO
         public string Username { get; set; }
 
         [Required]
-        public int DoctorId { get; set; }
+        public int? DoctorId { get; set; }
 
         [Required]
         public DateTime AppointmentDate { get; set; }

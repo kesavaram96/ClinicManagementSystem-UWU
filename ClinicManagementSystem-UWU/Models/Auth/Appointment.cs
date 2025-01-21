@@ -14,7 +14,7 @@ namespace ClinicManagementSystem_UWU.Models.Auth
 
         // Doctor Foreign Key
         [ForeignKey("Doctor")]
-        public int DoctorId { get; set; }
+        public int? DoctorId { get; set; }
         public DoctorDetails Doctor { get; set; }
 
         [ForeignKey("Clinic")]

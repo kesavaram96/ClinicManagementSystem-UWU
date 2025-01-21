@@ -60,7 +60,14 @@ namespace ClinicManagementSystem_UWU.Models.Data
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
 
-            
+            modelBuilder.Entity<AppointmentRequest>()
+    .HasOne(a => a.Doctor)
+    .WithMany()
+    .HasForeignKey(a => a.DoctorId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+
+
         }
 
     }

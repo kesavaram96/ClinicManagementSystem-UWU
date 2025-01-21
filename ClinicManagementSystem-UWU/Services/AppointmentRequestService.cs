@@ -11,10 +11,12 @@ namespace ClinicManagementSystem_UWU.Services
     {
         private readonly ClinicDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private AppointmentService appointment;
         public AppointmentRequestService(ClinicDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            appointment = new AppointmentService(_context);
         }
 
         public async Task<List<AppointmentRequestDto>> GetAllAsync(string? status)
@@ -33,13 +35,17 @@ namespace ClinicManagementSystem_UWU.Services
                     {
                         Id = a.Id,
                         PatientId = a.PatientId,
+                        PatientName=a.Patient.User.FullName,
                         clinicId = a.CliniId,
+                        CLinicName=a.Clinic.ClinicName,
                         AppointmentDate = a.AppointmentDate,
                         RequestedDate = a.RequestedDate,
                         ApproveUser = a.ApproveUser,
                         Status = a.Status,
                         RequestingReason = a.RequestingReason,
-                        ApprovedReason = a.ApprovedReason
+                        ApprovedReason = a.ApprovedReason,
+                        DoctorId=a.DoctorId,
+                        DoctorName=a.Doctor.User.FullName
                     }).ToListAsync();
             }
 
@@ -51,13 +57,17 @@ namespace ClinicManagementSystem_UWU.Services
                 {
                     Id = a.Id,
                     PatientId = a.PatientId,
+                    PatientName = a.Patient.User.FullName,
                     clinicId = a.CliniId,
+                    CLinicName = a.Clinic.ClinicName,
                     AppointmentDate = a.AppointmentDate,
                     RequestedDate = a.RequestedDate,
                     ApproveUser = a.ApproveUser,
                     Status = a.Status,
                     RequestingReason = a.RequestingReason,
-                    ApprovedReason = a.ApprovedReason
+                    ApprovedReason = a.ApprovedReason,
+                    DoctorId = a.DoctorId,
+                    DoctorName = a.Doctor.User.FullName
                 }).ToListAsync();
         }
 
@@ -87,8 +97,14 @@ namespace ClinicManagementSystem_UWU.Services
             var patient = await _context.PatientDetails
                 .Where(u => u.User.Username == users)
                 .Select(u => u.PatientDetailsId)
-                .FirstOrDefaultAsync(); 
+                .FirstOrDefaultAsync();
 
+            var doc = await _context.DoctorDetails.Where(u => u.DoctorDetailsId == request.DoctorId).Select(u=>u.DoctorDetailsId).FirstOrDefaultAsync();
+
+            if(doc==0)
+            {
+                throw new UnauthorizedAccessException("Doctor not found.");
+            }
             
             if (patient == 0)
             {
@@ -99,11 +115,12 @@ namespace ClinicManagementSystem_UWU.Services
             var appointment = new AppointmentRequest
             {
                 PatientId = patient,  
-                CliniId = request.CliniId,
+                CliniId = request.clinicId,
                 AppointmentDate = Convert.ToDateTime(request.AppointmentDate),
                 RequestedDate = DateTime.Now,
                 Status = "Pending",
                 RequestingReason = request.RequestingReason,
+                DoctorId=doc
             };
 
             // Add the new appointment to the context and save changes
@@ -121,7 +138,8 @@ namespace ClinicManagementSystem_UWU.Services
                 ApproveUser = appointment.ApproveUser,
                 Status = appointment.Status,
                 RequestingReason = appointment.RequestingReason,
-                ApprovedReason = appointment.ApprovedReason
+                ApprovedReason = appointment.ApprovedReason,
+                DoctorId=appointment.DoctorId
             };
         }
 
@@ -134,5 +152,41 @@ namespace ClinicManagementSystem_UWU.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<AppointmentResponseDTO> UpdateAppointmentRequestStatusAsync(int requestId, string status, string approvedReason)
+        {
+            var appointmentRequest = await _context.AppointmentRequest.FindAsync(requestId);
+            if (appointmentRequest == null)
+            {
+                return new AppointmentResponseDTO { Message = "Appointment request not found!" };
+            }
+
+            appointmentRequest.Status = status;
+            appointmentRequest.ApprovedReason = approvedReason;
+
+            if (status == "Approve")
+            {
+                var appointmentDto = new AppointmentDTO
+                {
+                    ClinicId = appointmentRequest.CliniId,
+                    DoctorId = appointmentRequest.DoctorId, // Assuming ApproveUser is the doctor ID
+                    AppointmentDate = appointmentRequest.AppointmentDate,
+                    Username = _context.PatientDetails
+                        .Where(p => p.PatientDetailsId == appointmentRequest.PatientId)
+                        .Select(p => p.User.Username)
+                        .FirstOrDefault()
+                };
+
+                var appointmentResponse = await appointment.BookAppointmentAsync(appointmentDto);
+                if (!appointmentResponse.Message.Contains("successfully"))
+                {
+                    return appointmentResponse; // Return the error message if booking failed
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return new AppointmentResponseDTO { Message = "Appointment request updated successfully!" };
+        }
+
     }
 }

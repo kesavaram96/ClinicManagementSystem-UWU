@@ -2,10 +2,11 @@
 {
     public class CreateAppointmentRequestDto
     {
-        public int CliniId { get; set; }
+        public int clinicId{ get; set; }
         public DateTime AppointmentDate { get; set; }
                 
         public string RequestingReason { get; set; }
-        
+        public int DoctorId { get; set; }
+
     }
 }

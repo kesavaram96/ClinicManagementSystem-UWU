@@ -7,6 +7,7 @@ namespace ClinicManagementSystem_UWU.Interfaces
         Task<AppointmentRequestDto> GetByIdAsync(int id);
         Task<AppointmentRequestDto> CreateAsync(CreateAppointmentRequestDto request);
         Task<bool> DeleteAsync(int id);
+        Task<AppointmentResponseDTO> UpdateAppointmentRequestStatusAsync(int requestId, string status, string approvedReason);
 
     }
 }
