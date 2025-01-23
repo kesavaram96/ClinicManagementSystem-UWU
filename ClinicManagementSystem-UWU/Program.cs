@@ -34,7 +34,8 @@ builder.Services.AddScoped<IAppointmentRequestService, AppointmentRequestService
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddHttpContextAccessor();
-
+builder.Services.AddSignalR();
+builder.Services.AddHttpContextAccessor();
 
 // JWT configuration
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -130,6 +131,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowSpecificOrigin");
+
+app.MapHub<NotificationHub>("/notificationhub");
 
 app.UseHttpsRedirection();
 

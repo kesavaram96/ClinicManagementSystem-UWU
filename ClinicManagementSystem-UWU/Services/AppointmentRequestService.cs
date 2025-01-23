@@ -2,6 +2,7 @@
 using ClinicManagementSystem_UWU.Models.Auth;
 using ClinicManagementSystem_UWU.Models.Data;
 using ClinicManagementSystem_UWU.Models.DTO;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -12,11 +13,13 @@ namespace ClinicManagementSystem_UWU.Services
         private readonly ClinicDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private AppointmentService appointment;
-        public AppointmentRequestService(ClinicDbContext context, IHttpContextAccessor httpContextAccessor)
+        private readonly IHubContext<NotificationHub> _hubContext;
+        public AppointmentRequestService(ClinicDbContext context, IHttpContextAccessor httpContextAccessor, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
-            appointment = new AppointmentService(_context);
+            _hubContext = hubContext;
+            appointment = new AppointmentService(_context, _hubContext);
         }
 
         public async Task<List<AppointmentRequestDto>> GetAllAsync(string? status)
@@ -163,7 +166,7 @@ namespace ClinicManagementSystem_UWU.Services
 
             appointmentRequest.Status = status;
             appointmentRequest.ApprovedReason = approvedReason;
-
+            AppointmentResponseDTO appointmentResponse =null;
             if (status == "Approve")
             {
                 var appointmentDto = new AppointmentDTO
@@ -177,15 +180,15 @@ namespace ClinicManagementSystem_UWU.Services
                         .FirstOrDefault()
                 };
 
-                var appointmentResponse = await appointment.BookAppointmentAsync(appointmentDto);
-                if (!appointmentResponse.Message.Contains("successfully"))
+                appointmentResponse = await appointment.BookAppointmentAsync(appointmentDto);
+                if (!appointmentResponse.Message.Contains("Appointment booked successfully!"))
                 {
                     return appointmentResponse; // Return the error message if booking failed
                 }
             }
 
             await _context.SaveChangesAsync();
-            return new AppointmentResponseDTO { Message = "Appointment request updated successfully!" };
+            return appointmentResponse;
         }
 
     }

@@ -2,6 +2,7 @@
 using ClinicManagementSystem_UWU.Models.Auth;
 using ClinicManagementSystem_UWU.Models.Data;
 using ClinicManagementSystem_UWU.Models.DTO;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -12,14 +13,19 @@ namespace ClinicManagementSystem_UWU.Services
         private readonly ClinicDbContext _context;
         private readonly Random _random;
 
-        public AppointmentService(ClinicDbContext context)
+        private readonly IHubContext<NotificationHub> _hubContext;
+        public AppointmentService(ClinicDbContext context, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _random = new Random();
+
+            _hubContext = hubContext;
         }
 
         public async Task<List<AppointmentResponsesDTO>> GetAllAppointmentsAsync()
         {
+            //await _hubContext.Clients.All.SendAsync("ReceiveNotification", new { Message = "Test Notification " + DateTime.Now });
+
             var appointments = await _context.Appointments
                 .Include(a => a.Patient)
                 .ThenInclude(p => p.User)  // Ensure User is loaded for Patient
@@ -197,6 +203,16 @@ namespace ClinicManagementSystem_UWU.Services
             // Save the appointment to the database
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
+
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", new { Message = "Test Notification " + DateTime.Now });
+
+            await _hubContext.Clients.User(patient.UserId.ToString()).SendAsync("ReceiveNotification",
+                new
+                {
+                    Message = "Your appointment request has been received!",
+                    AppointmentId = appointment.AppointmentId,
+                    Status = "Pending"
+                });
 
             return new AppointmentResponseDTO
             {
