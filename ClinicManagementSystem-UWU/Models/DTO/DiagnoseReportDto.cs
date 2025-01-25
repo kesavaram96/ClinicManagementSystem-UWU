@@ -1,19 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace ClinicManagementSystem_UWU.Models.Auth
+﻿namespace ClinicManagementSystem_UWU.Models.DTO
 {
-    public class DiagnoseReport
+    public class DiagnoseReportDto
     {
         public int Id { get; set; }
-        public DateTime Date { get; set; }=DateTime.Now;
-        [ForeignKey("Patient")]
+        public DateTime Date { get; set; } = DateTime.Now;
         public int PatientId { get; set; }
-        public PatientDetails Patient { get; set; } // Change to PatientDetails
         public string? HeartRate { get; set; }
         public decimal? Weight { get; set; }
         public string? Diagnose { get; set; }
         public string? Medicines { get; set; }
         public string? HealthStatus { get; set; }
-
     }
 }

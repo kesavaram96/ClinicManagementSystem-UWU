@@ -12,7 +12,7 @@ namespace ClinicManagementSystem_UWU.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-
+        
         public UserController(IUserService userService)
         {
             _userService = userService;
@@ -136,6 +136,18 @@ namespace ClinicManagementSystem_UWU.Controllers
             {
                 return StatusCode(500, new { message = "An error occurred while deleting the user.", error = ex.Message });
             }
+        }
+        [HttpGet("{patientId}")]
+        public async Task<ActionResult<PatientDetailsDTO>> GetPatient(int patientId)
+        {
+            var patientDetails = await _userService.GetPatient(patientId);
+
+            if (patientDetails == null)
+            {
+                return NotFound(); // Return 404 if patient is not found
+            }
+
+            return Ok(patientDetails); // Return 200 with patient details
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ClinicManagementSystem_UWU.Interfaces;
 using ClinicManagementSystem_UWU.Models.DTO;
 using ClinicManagementSystem_UWU.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace ClinicManagementSystem_UWU.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class AppointmentController : ControllerBase
     {
         private readonly IAppointmentService _appointmentService;
@@ -18,6 +20,7 @@ namespace ClinicManagementSystem_UWU.Controllers
             _appointmentService = appointmentService;
         }
         [HttpGet("getAll")]
+        //[Authorize]
         public async Task<ActionResult<List<AppointmentResponsesDTO>>> GetAllAppointments()
         {
             var appointments = await _appointmentService.GetAllAppointmentsAsync();

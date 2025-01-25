@@ -12,27 +12,48 @@ namespace ClinicManagementSystem_UWU.Services
     {
         private readonly ClinicDbContext _context;
         private readonly Random _random;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly IHubContext<NotificationHub> _hubContext;
-        public AppointmentService(ClinicDbContext context, IHubContext<NotificationHub> hubContext)
+        public AppointmentService(ClinicDbContext context, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _random = new Random();
-
+            _httpContextAccessor = httpContextAccessor;
             _hubContext = hubContext;
         }
 
         public async Task<List<AppointmentResponsesDTO>> GetAllAppointmentsAsync()
         {
-            //await _hubContext.Clients.All.SendAsync("ReceiveNotification", new { Message = "Test Notification " + DateTime.Now });
+            var users = _httpContextAccessor.HttpContext?.User.Identity.Name;
 
-            var appointments = await _context.Appointments
-                .Include(a => a.Patient)
-                .ThenInclude(p => p.User)  // Ensure User is loaded for Patient
-                .Include(a => a.Doctor)
-                .ThenInclude(d => d.User)  // Ensure User is loaded for Doctor
-                .Include(a => a.Clinic)
-                .ToListAsync();
+            var doctor = _context.DoctorDetails.FirstOrDefault(u => u.User.Username == users);
+            var today = DateTime.Now.Date;  // Only compare the date, not the time
+            List<Appointment> appointments;
+
+            if (doctor != null)
+            {
+                appointments = await _context.Appointments
+                    .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)  // Ensure User is loaded for Patient
+                    .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)  // Ensure User is loaded for Doctor
+                    .Include(a => a.Clinic)
+                    .Where(a => a.Doctor == doctor && a.AppointmentDate.Date == today) // Use Date to ignore time part
+                    .OrderBy(a => a.LineNumber)
+                    .ToListAsync();
+            }
+            else
+            {
+                appointments = await _context.Appointments
+                    .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)  // Ensure User is loaded for Patient
+                    .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)  // Ensure User is loaded for Doctor
+                    .Include(a => a.Clinic)
+                    .OrderBy(a => a.LineNumber)
+                    .ToListAsync();
+            }
 
             return appointments.Select(a => new AppointmentResponsesDTO
             {
@@ -44,7 +65,7 @@ namespace ClinicManagementSystem_UWU.Services
                 Status = a.Status,
                 LineNumber = a.LineNumber,
                 DoctorId = a.DoctorId,  // Include DoctorId
-                ClinicId = a.CliniId,  // Include ClinicId
+                ClinicId = a.CliniId,  // Corrected property name to ClinicId
                 PatientId = a.Patient?.PatientDetailsId ?? 0  // Include PatientId
             }).ToList();
         }
@@ -92,10 +113,10 @@ namespace ClinicManagementSystem_UWU.Services
                 return new AppointmentResponseDTO { Message = "Appointment not found!" };
             }
 
-            appointment.AppointmentDate = appointmentDto.AppointmentDate;
+            //appointment.AppointmentDate = appointmentDto.AppointmentDate;
             appointment.Status = appointmentDto.Status;
-            appointment.DoctorId = appointmentDto.DoctorId;  // Update DoctorId
-            appointment.CliniId = appointmentDto.ClinicId;  // Update ClinicId
+            //appointment.DoctorId = appointmentDto.DoctorId;  // Update DoctorId
+            //appointment.CliniId = appointmentDto.ClinicId;  // Update ClinicId
 
             await _context.SaveChangesAsync();
 

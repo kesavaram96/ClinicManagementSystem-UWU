@@ -16,6 +16,7 @@ namespace ClinicManagementSystem_UWU.Interfaces
         Task<string> EditUser(int userId, EditUserDTO userDto);
         Task<string> DeleteUser(int userId);
 
+        Task<PatientDetailsDTO> GetPatient(int userId);
     }
 
 }

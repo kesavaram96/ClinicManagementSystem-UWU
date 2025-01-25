@@ -339,6 +339,39 @@ namespace ClinicManagementSystem_UWU.Services
                 throw new Exception("An error occurred while deleting the user.", ex);
             }
         }
+
+        public async Task<PatientDetailsDTO> GetPatient(int patientId)
+        {
+            var patient = await _context.PatientDetails
+                .Include(u=>u.User)
+                .FirstOrDefaultAsync(o => o.PatientDetailsId == patientId)
+                ;
+
+            if (patient == null)
+            {
+                return null; // Or handle it appropriately, e.g., throw an exception.
+            }
+
+            var dob = patient.DateOfBirth.Value;
+            var today = DateTime.Now;
+
+            // Calculate age
+            int age = today.Year - dob.Year;
+            if (today.Month < dob.Month || (today.Month == dob.Month && today.Day < dob.Day))
+            {
+                age--; // Subtract one if the birthday hasn't occurred yet this year
+            }
+
+            return new PatientDetailsDTO
+            {
+                Name = patient.User.FullName,
+                Age = age,
+                Gender = patient.Gender,
+                BloodGroup = patient.BloodGroup
+            };
+        }
+
+
     }
 
 

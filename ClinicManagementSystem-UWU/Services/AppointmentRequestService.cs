@@ -19,7 +19,7 @@ namespace ClinicManagementSystem_UWU.Services
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _hubContext = hubContext;
-            appointment = new AppointmentService(_context, _hubContext);
+            appointment = new AppointmentService(_context, _hubContext, _httpContextAccessor);
         }
 
         public async Task<List<AppointmentRequestDto>> GetAllAsync(string? status)

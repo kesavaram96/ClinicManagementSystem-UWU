@@ -17,5 +17,6 @@ public class PatientDetails
     public string? ECNumber { get; set; }
     public string? ECRelationship { get; set; }
     public string? BloodGroup { get; set; }
+    public string? Gender { get; set; }
 
 }
