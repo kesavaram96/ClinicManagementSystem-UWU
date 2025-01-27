@@ -27,7 +27,7 @@ namespace ClinicManagementSystem_UWU.Services
         {
             var users = _httpContextAccessor.HttpContext?.User.Identity.Name;
 
-            var doctor = _context.DoctorDetails.FirstOrDefault(u => u.User.Username == users);
+            var doctor = _context.DoctorDetails.Include(u=>u.User).FirstOrDefault(u => u.User.Username == users);
             var today = DateTime.Now.Date;  // Only compare the date, not the time
             List<Appointment> appointments;
 
@@ -39,7 +39,7 @@ namespace ClinicManagementSystem_UWU.Services
                     .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)  // Ensure User is loaded for Doctor
                     .Include(a => a.Clinic)
-                    .Where(a => a.Doctor == doctor && a.AppointmentDate.Date == today) // Use Date to ignore time part
+                    .Where(a => a.Doctor == doctor) // Use Date to ignore time part
                     .OrderBy(a => a.LineNumber)
                     .ToListAsync();
             }
@@ -144,42 +144,40 @@ namespace ClinicManagementSystem_UWU.Services
 
             return "Appointment deleted successfully!";
         }
+
         public async Task<AppointmentResponseDTO> BookAppointmentAsync(AppointmentDTO appointmentDto)
         {
-
-            var doctor = await _context.DoctorDetails
+            var doctor = await _context.DoctorDetails.Include(u=>u.User)
                 .FirstOrDefaultAsync(d => d.DoctorDetailsId == appointmentDto.DoctorId);
 
             if (doctor == null)
             {
                 return new AppointmentResponseDTO { Message = "Doctor not found!" };
-
             }
 
-
             var patient = await _context.PatientDetails
-        .FirstOrDefaultAsync(p => p.User.Username == appointmentDto.Username);
+                .FirstOrDefaultAsync(p => p.User.Username == appointmentDto.Username);
 
             if (patient == null)
             {
-                return new AppointmentResponseDTO
-                {
-                    Message = "Patient not found!"
-                };
+                return new AppointmentResponseDTO { Message = "Patient not found!" };
             }
 
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username == appointmentDto.Username);
+
+            if (user == null || string.IsNullOrEmpty(user.PhoneNumber))
+            {
+                return new AppointmentResponseDTO { Message = "Patient phone number not found!" };
+            }
 
             var clinic = await _context.Clinics
                 .FirstOrDefaultAsync(c => c.ClinicId == appointmentDto.ClinicId);
 
             if (clinic == null)
             {
-                return new AppointmentResponseDTO
-                {
-                    Message = "Clinic not found!"
-                };
+                return new AppointmentResponseDTO { Message = "Clinic not found!" };
             }
-
 
             var existingAppointments = await _context.Appointments
                 .Where(a => a.DoctorId == appointmentDto.DoctorId &&
@@ -187,32 +185,21 @@ namespace ClinicManagementSystem_UWU.Services
                             a.Status == "Scheduled")
                 .ToListAsync();
 
-
             if (existingAppointments.Count >= clinic.PatientCapability)
             {
-                return new AppointmentResponseDTO
-                {
-                    Message = "The clinic has reached its capacity for the day!"
-                };
+                return new AppointmentResponseDTO { Message = "The clinic has reached its capacity for the day!" };
             }
-
 
             int randomLineNumber;
             bool isUnique;
-
             do
             {
-
                 randomLineNumber = _random.Next(1, clinic.PatientCapability + 1);
-
                 isUnique = !existingAppointments.Any(a => a.LineNumber == randomLineNumber);
-
             } while (!isUnique);
-
 
             var appointment = new Appointment
             {
-
                 PatientId = patient.PatientDetailsId,
                 DoctorId = appointmentDto.DoctorId,
                 AppointmentDate = appointmentDto.AppointmentDate,
@@ -221,10 +208,10 @@ namespace ClinicManagementSystem_UWU.Services
                 CliniId = appointmentDto.ClinicId
             };
 
-            // Save the appointment to the database
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
+            // Send WebSocket notification
             await _hubContext.Clients.All.SendAsync("ReceiveNotification", new { Message = "Test Notification " + DateTime.Now });
 
             await _hubContext.Clients.User(patient.UserId.ToString()).SendAsync("ReceiveNotification",
@@ -235,13 +222,36 @@ namespace ClinicManagementSystem_UWU.Services
                     Status = "Pending"
                 });
 
+            // Send SMS notification
+            string smsMessage = $"Your appointment with Dr. {doctor.User.FullName} is scheduled on {appointmentDto.AppointmentDate:yyyy-MM-dd}. " +
+                                $"Line Number: {randomLineNumber}. Clinic: {clinic.ClinicName}.";
+
+            string smsApiUrl = $"https://app.notify.lk/api/v1/send?user_id=28858&api_key=NGDUPXnRwGdSbD3jlgXm" +
+                               $"&sender_id=NotifyDEMO&to={user.PhoneNumber}&message={Uri.EscapeDataString(smsMessage)}";
+
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync(smsApiUrl);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        // Log the error if needed
+                        Console.WriteLine("Failed to send SMS: " + response.ReasonPhrase);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("SMS sending failed: " + ex.Message);
+                }
+            }
+
             return new AppointmentResponseDTO
             {
-                Message = $"Appointment booked successfully!",
+                Message = "Appointment booked successfully!",
                 LineNumber = randomLineNumber
             };
         }
-
         public async Task<IEnumerable<ClinicDTO>> GetAllClinicsAsync()
         {
             return await _context.Clinics

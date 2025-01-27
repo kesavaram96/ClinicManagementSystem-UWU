@@ -17,6 +17,11 @@ namespace ClinicManagementSystem_UWU.Interfaces
         Task<string> DeleteUser(int userId);
 
         Task<PatientDetailsDTO> GetPatient(int userId);
+        Task<bool> ChangePassword(PasswordDTO request);
+
+        Task<PatientDetails> UpdatePatientDetails(int userId, PatientPersonalInfo patientDetails);
+
+        Task<List<DoctorsDTO>> GetDoctor();
     }
 
 }

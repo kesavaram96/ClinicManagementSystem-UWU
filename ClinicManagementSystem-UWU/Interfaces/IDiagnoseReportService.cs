@@ -7,5 +7,8 @@ namespace ClinicManagementSystem_UWU.Interfaces
         Task<List<DiagnoseReportDto>> GetDiagnoseReports(int? patientId);
         Task<DiagnoseReportDto> CreateDiagnoseReport(DiagnoseReportDto reportDto);
 
+        
+
+
     }
 }

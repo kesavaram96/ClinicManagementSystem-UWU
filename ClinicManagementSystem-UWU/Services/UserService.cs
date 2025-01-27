@@ -18,14 +18,16 @@ namespace ClinicManagementSystem_UWU.Services
         private readonly ClinicDbContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UserService(ClinicDbContext context,
             IPasswordHasher<User> passwordHasher,
-            IConfiguration configuration)
+            IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
 
@@ -369,6 +371,78 @@ namespace ClinicManagementSystem_UWU.Services
                 Gender = patient.Gender,
                 BloodGroup = patient.BloodGroup
             };
+        }
+
+        public async Task<bool> ChangePassword(PasswordDTO request)
+        {
+            var username = _httpContextAccessor.HttpContext?.User.Identity.Name;
+            if (string.IsNullOrEmpty(username))
+            {
+                return false; // No authenticated user found
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+            {
+                return false; // User not found
+            }
+
+            // Validate password match
+            if (request.Password != request.ConfirmPassword)
+            {
+                return false; // Passwords do not match
+            }
+
+            // Hash and update password
+            user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+            _context.Users.Update(user); // Correct method for updating an existing entity
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<PatientDetails> UpdatePatientDetails(int userId, PatientPersonalInfo patientDetails)
+        {
+            var existingPatient = await _context.PatientDetails
+                                                 .FirstOrDefaultAsync(p => p.UserId == userId);
+
+            if (existingPatient == null)
+            {
+                throw new Exception("Patient not found.");
+            }
+
+            existingPatient.MedicalHistory = patientDetails.MedicalHistory;
+            existingPatient.InsuranceNumber = patientDetails.InsuranceNumber;
+            existingPatient.DateOfBirth = patientDetails.DateOfBirth;
+            existingPatient.EmergencyContactPerson = patientDetails.EmergencyContactPerson;
+            existingPatient.ECNumber = patientDetails.ECNumber;
+            existingPatient.ECRelationship = patientDetails.ECRelationship;
+            existingPatient.BloodGroup = patientDetails.BloodGroup;
+            existingPatient.Gender = patientDetails.Gender;
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return existingPatient;
+        }
+
+        public async Task<List<DoctorsDTO>> GetDoctor()
+        {
+            // Fetch the data from PatientDetails and include User details
+            var users = await _context.DoctorDetails
+                .Include(pd => pd.User) // Include User details
+                .ToListAsync();
+
+            // Map the data to DoctorsDTO
+            var doctorList = users.Select(user => new DoctorsDTO
+            {
+                FullName = user.User.FullName,      
+                Email = user.User.Email,             
+                PhoneNumber = user.User.PhoneNumber, // Accessing PhoneNumber from the User
+                Specialization = user.Specialization // Assuming Specialization exists in PatientDetails or User model
+            }).ToList();
+
+            return doctorList;
         }
 
 

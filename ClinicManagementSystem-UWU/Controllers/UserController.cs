@@ -1,9 +1,11 @@
 ﻿using ClinicManagementSystem_UWU.Interfaces;
 using ClinicManagementSystem_UWU.Models.Auth;
+using ClinicManagementSystem_UWU.Models.Data;
 using ClinicManagementSystem_UWU.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClinicManagementSystem_UWU.Controllers
 {
@@ -12,10 +14,15 @@ namespace ClinicManagementSystem_UWU.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        
-        public UserController(IUserService userService)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ClinicDbContext _context;
+
+
+        public UserController(IUserService userService, IHttpContextAccessor httpContextAccessor,ClinicDbContext context)
         {
             _userService = userService;
+            _httpContextAccessor = httpContextAccessor;
+            _context = context;
         }
 
         [HttpPost("CreateUser")]
@@ -148,6 +155,85 @@ namespace ClinicManagementSystem_UWU.Controllers
             }
 
             return Ok(patientDetails); // Return 200 with patient details
+        }
+
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] PasswordDTO request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Password) || string.IsNullOrWhiteSpace(request.ConfirmPassword))
+            {
+                return BadRequest("Password fields cannot be empty.");
+            }
+
+            if (request.Password != request.ConfirmPassword)
+            {
+                return BadRequest("Passwords do not match.");
+            }
+
+            var result = await _userService.ChangePassword(request);
+
+            if (!result)
+            {
+                return BadRequest("Failed to change password. Please try again.");
+            }
+
+            return Ok(new { Message = "Password changed successfully!" });
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdatePatientDetails([FromBody] PatientPersonalInfo patientDetails)
+        {
+            try
+            {
+                // Get the logged-in username (userId)
+                var username = _httpContextAccessor.HttpContext?.User.Identity.Name;
+
+                if (string.IsNullOrEmpty(username))
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
+                // You can get the userId by querying the User table with the username.
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                // Use the patient service to update the patient details.
+                var updatedPatient = await _userService.UpdatePatientDetails(user.UserId, patientDetails);
+
+                return Ok(updatedPatient);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error updating patient details: {ex.Message}");
+            }
+        }
+
+        [HttpGet("Doctors")]
+        public async Task<IActionResult> GetDoctors()
+        {
+            try
+            {
+                // Fetching the list of doctors using the service method
+                List<DoctorsDTO> doctorList = await _userService.GetDoctor();
+
+                // Returning a successful response with the list of doctors
+                if (doctorList == null || doctorList.Count == 0)
+                {
+                    return NotFound(new { message = "No doctors found." });
+                }
+
+                return Ok(doctorList);
+            }
+            catch (Exception ex)
+            {
+                // Handling any exceptions that occur during the process
+                return StatusCode(500, new { message = "An error occurred while fetching the doctors.", error = ex.Message });
+            }
         }
     }
 }
